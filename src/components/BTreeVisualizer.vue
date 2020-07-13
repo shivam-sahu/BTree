@@ -23,38 +23,6 @@
       :current="currentSequenceNumber"
       :current-frame="currentFrame"
     />
-    <div class="arrow-button-container flex m-auto">
-      <div class="history-btn-container">
-        <HistoryButtons
-          id="history.buttons"
-          class="mx-4"
-          :current="currentSequenceNumber"
-          :length="sequences.length"
-          :disabled="historyButtonsAreDisabled"
-          label="History"
-          @HistoryEvents="changeCurrentSequence"
-        />
-      </div>
-      <v-btn
-        class="button"
-        color="primary"
-        :disabled="isAnimating"
-        @click="replay"
-      >
-        Replay <v-icon>mdi-play</v-icon>
-      </v-btn>
-      <div class="step-btn-container">
-        <HistoryButtons
-          id="step-buttons"
-          class="mx-4"
-          :current-frame="currentFrame"
-          :length="currentSequence ? currentSequence.frames.length : 0"
-          :disabled="stepButtonsAreDisabled"
-          label="Animation"
-          @HistoryEvents="changeCurrentFrame"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -65,7 +33,6 @@ import BTree, { BTreeNode } from '../assets/implementations/btree';
 import InsertInput from './shared/InsertInput.vue';
 import DeleteInput from './shared/DeleteInput.vue';
 import Visualizer from './shared/Visualizer.vue';
-import HistoryButtons from './shared/HistoryButtons.vue';
 import Sequence from '../assets/visualizer/frame';
 
 const router = new Router();
@@ -76,7 +43,6 @@ export default {
     InsertInput,
     DeleteInput,
     Visualizer,
-    HistoryButtons,
   },
   data() {
     return {
@@ -136,13 +102,6 @@ export default {
       this.currentSequenceNumber = this.sequencesList.length - 1;
       this.addSequenceAsync(this.bTree.delete(event));
     },
-
-    replay() {
-      const frames = [];
-      this.currentSequence.frames.forEach((f) => frames.push(f));
-      this.currentSequence.frames = [];
-      this.addSequenceAsync({ frames });
-    },
     addSequenceAsync(sequence) {
       this.isAnimating = true;
       this.currentSequence.addFrame(sequence.frames[0]);
@@ -157,25 +116,6 @@ export default {
           this.sequencesList = Object.assign(this.sequencesList);
         }, i * 500);
       }
-    },
-    changeCurrentFrame(event) {
-      this.currentFrame += event;
-      if (this.currentFrame < 0) {
-        this.currentFrame = 0;
-      }
-      if (this.currentFrame > this.sequencesList[this.currentSequenceNumber].frames.length - 1) {
-        this.currentFrame = this.sequencesList[this.currentSequenceNumber].frames.length - 1;
-      }
-    },
-    changeCurrentSequence(event) {
-      this.currentSequenceNumber += event;
-      if (this.currentSequenceNumber < 0) {
-        this.currentSequenceNumber = 0;
-      }
-      if (this.currentSequenceNumber > this.sequencesList.length - 1) {
-        this.currentSequenceNumber = this.sequencesList.length - 1;
-      }
-      this.currentFrame = this.currentSequence.frames.length - 1;
     },
   },
 };
